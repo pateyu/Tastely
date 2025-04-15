@@ -1,4 +1,4 @@
-# Global Food Library
+# Tastely
 
 ## Introduction
 
