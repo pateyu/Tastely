@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <script src="/static/settings.js"></script>
+</head>
+<body class="bg-gray-100 p-5">
+  <!-- Sticky Navbar -->
+  <div class="sticky top-0 bg-white shadow-md z-50 py-4 mb-6">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-semibold">User Settings</h1>
+      <div class="flex items-center">
+        <button onclick="location.href='/dashboard';" class="mr-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-700 transition">Dashboard</button>
+        <button onclick="location.href='/logout';" class="px-4 py-2 bg-red-500 text-white font-semibold rounded hover:bg-red-700 transition">Logout</button>
+      </div>
+    </div>
+    <div id="messageDisplay" class="text-center my-4"></div>
+  </div>
+
+  <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
+    <!-- Change Username -->
+    <div class="mb-6">
+      <h2 class="font-bold mb-2">Change Username</h2>
+      <form id="username-form" action="/change_username" method="POST">
+        <label for="username" class="block mb-2">New Username:</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="form-input px-4 py-2 w-full border border-gray-600 rounded-md"
+          required
+        />
+        <button
+          type="submit"
+          class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition"
+        >
+          Save Changes
+        </button>
+      </form>
+    </div>
+
+    <!-- Change Password -->
+    <div class="mb-6">
+      <h2 class="font-bold mb-2">Change Password</h2>
+      <form id="password-form" action="/change_password" method="POST">
+        <label for="current_password" class="block mb-2">Current Password:</label>
+        <input
+          type="password"
+          id="current_password"
+          name="current_password"
+          class="form-input px-4 py-2 w-full border border-gray-600 rounded-md"
+          required
+        />
+        <label for="new_password" class="block mb-2">New Password:</label>
+        <input
+          type="password"
+          id="new_password"
+          name="new_password"
+          class="form-input px-4 py-2 w-full border border-gray-600 rounded-md"
+          required
+        />
+        <label for="confirm_password" class="block mb-2">Confirm New Password:</label>
+        <input
+          type="password"
+          id="confirm_password"
+          name="confirm_password"
+          class="form-input px-4 py-2 w-full border border-gray-600 rounded-md"
+          required
+        />
+        <button
+          type="submit"
+          class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition"
+        >
+          Change Password
+        </button>
+      </form>
+    </div>
+
+    <!-- Change Email -->
+    <div class="mb-6">
+      <h2 class="font-bold mb-2">Change Email</h2>
+      <form id="email-form" action="/change_email" method="POST">
+        <label for="email" class="block mb-2">New Email:</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input px-4 py-2 w-full border border-gray-600 rounded-md"
+          required
+        />
+        <button
+          type="submit"
+          class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition"
+        >
+          Change Email
+        </button>
+      </form>
+    </div>
+
+    <!-- Dietary Restrictions -->
+    <div class="mb-6">
+        <h2 class="font-bold mb-2">Dietary Restrictions</h2>
+        <form id="diet-restrictions-form" action="/update_diet_restrictions" method="POST">
+            <fieldset class="space-y-2">
+                <legend class="text-gray-700 mb-2">Select your dietary restrictions:</legend>
+                
+                <!-- Checkbox for None -->
+                <div>
+                    <input type="checkbox" id="None" name="diet[]" value="None" class="form-checkbox h-5 w-5 text-blue-600">
+                    <label for="None" class="ml-2 text-gray-700">None</label>
+                </div>
+
+                <!-- Checkbox for Vegetarian -->
+                <div>
+                    <input type="checkbox" id="Vegetarian" name="diet[]" value="Vegetarian" class="form-checkbox h-5 w-5 text-green-600">
+                    <label for="Vegetarian" class="ml-2 text-gray-700">Vegetarian</label>
+                </div>
+
+                <!-- Checkbox for Vegan -->
+                <div>
+                    <input type="checkbox" id="Vegan" name="diet[]" value="Vegan" class="form-checkbox h-5 w-5 text-green-600">
+                    <label for="Vegan" class="ml-2 text-gray-700">Vegan</label>
+                </div>
+
+                <!-- Checkbox for Gluten-Free -->
+                <div>
+                    <input type="checkbox" id="Gluten-Free" name="diet[]" value="Gluten-Free" class="form-checkbox h-5 w-5 text-green-600">
+                    <label for="Gluten-Free" class="ml-2 text-gray-700">Gluten-Free</label>
+                </div>
+            </fieldset>
+            
+            <button
+                type="submit"
+                class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition"
+            >
+                Save Changes
+            </button>
+        </form>
+    </div>
+
+    <!-- Enter Security Key -->
+    <div class="mb-6">
+      <h2 class="font-bold mb-2">Enter Security Key</h2>
+      <form id="securityKeyForm" action="/update_security_key" method="POST">
+        <label for="security_key" class="block mb-2">Security Key:</label>
+        <input
+          type="text"
+          id="security_key"
+          name="security_key"
+          class="form-input px-4 py-2 w-full border border-gray-600 rounded-md"
+          required
+        />
+        <button
+          type="submit"
+          class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition"
+        >
+          Update Key
+        </button>
+      </form>
+    </div>
+
+    <!-- Delete Account -->
+<div class="mb-6">
+  <h2 class="font-bold mb-2">Delete Account</h2>
+  <form id="delete-account-form" action="/delete_account" method="POST">
+    <p class="text-red-600">Warning: This action cannot be undone. All data associated with your account will be permanently deleted.</p>
+    <button
+      type="submit"
+      id="delete-account-btn"
+      class="mt-3 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700 transition"
+    >
+      Delete Account
+    </button>
+  </form>
+</div>
+
+
+  </div>
+</body>
+</html>

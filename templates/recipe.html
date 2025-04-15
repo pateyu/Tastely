@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ recipe.recipe_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <script src="/static/recipe.js" defer></script>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-4xl mx-auto px-5 py-8">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <img src="/{{recipe.recipe_image}}" alt="{{ recipe.recipe_name }} Image" class="w-full h-64 object-cover object-center">
+            <div class="p-5">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-3xl font-bold text-gray-800">{{ recipe.recipe_name }}</h2>
+                    <span class="text-lg font-bold text-gray-800">
+                        Rating:
+                        {% if avg_rating %}
+                        {{ avg_rating|round(1, 'floor') }}/5 
+                        {% else %}
+                        No ratings
+                        {% endif %}
+                    </span>
+                </div>
+                <span class="text-sm mt-2 font-semibold inline-block py-1 px-2 uppercase rounded text-purple-600 bg-purple-200 mb-4">
+                    {{ recipe.Cuisine_ID}}
+                </span>
+                <div class="flex flex-wrap mb-3">
+                    {% for tag in tags %}
+                    <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded text-blue-600 bg-blue-200 mr-2 mb-2">
+                        {{ tag.RecRestriction }}
+                    </span>
+                    {% endfor %}
+                </div>
+                <p class="text-gray-700 mb-4">{{ recipe.recipe_description }}</p>
+                <div class="mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Ingredients</h3>
+                    <ul class="list-disc ml-5 text-gray-700">
+                        {% for ingredient in ingredients %}
+                        <li>{{ ingredient.ingredient_name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Instructions</h3>
+                    <ol class="list-decimal ml-5 text-gray-700">
+                        {% for step in recipe.instructions.split('\n') %}
+                        <li>{{ step }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                    <span class="text-gray-900 font-bold">Prep Time: {{ recipe.prep_time }}</span>
+                    <span class="text-gray-900 font-bold">Cook Time: {{ recipe.cook_time }}</span>
+                </div>
+                <!-- User rating form -->
+                <div class="mt-4">
+                    
+                    <form id="ratingForm" action="/rate-recipe" method="post" class="flex items-center">
+                        <input type="hidden" name="recipe_name" value="{{ recipe.recipe_name }}">
+                        <label for="rating">Rate Recipe:</label>
+                        <input type="number" id="rating" name="rating" min="1" max="5" required class="mx-4">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"> Submit</button>
+                    </form>
+                    
+                </div>
+                <!-- Conditionally display edit and delete buttons -->
+                <div class="flex space-x-2 mt-4">
+                    <!-- Check if user created the recipe or is an admin -->
+                    {% if session['user_id'] == recipe.UserID or session.get('is_admin', False) %}
+                    <button onclick="location.href='/edit-recipe/{{ recipe.recipe_name | replace(' ', '-') }}';" class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded">Edit Recipe</button>
+                    <button onclick="deleteRecipe('{{ recipe.recipe_name }}')" class="px-4 py-2 bg-red-600 hover:bg-red-800 text-white rounded">Delete Recipe</button>
+                    {% else %}
+                    <!-- Show save button only to users who did not create the recipe -->
+                    <button id="cookbookButton" onclick="toggleCookbook('{{ recipe.recipe_name }}')" class="px-4 py-2 bg-green-500 hover:bg-green-700 text-white rounded">Save to Cookbook</button>
+                    {% endif %}
+                    <button onclick="location.href='/dashboard';" class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Back to Dashboard</button>                    
+                </div>
+                <div class="text-right mt-2">
+                    <span class="text-md font-medium text-blue-700">Ratings from {{ rating_count }} reviews</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            updateCookbookButton('{{ recipe.recipe_name }}');
+        });
+    </script>
+</body>
+</html>
