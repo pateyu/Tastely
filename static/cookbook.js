@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     const recipesContainer = document.querySelector('.recipes-container');
-// cookbook.js: This script fetches and displays recipes from the cookbook API Route
+
     function fetchCookbookRecipes() {
         fetch('/api/cookbook')
             .then(response => response.json())

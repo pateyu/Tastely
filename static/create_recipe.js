@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
       alert(
         "Please fill out all required fields: Recipe Name, Ingredients, and Instructions."
       );
-      event.preventDefault();
+      event.preventDefault(); // Prevent form submission
     }
   });
 });
