@@ -696,7 +696,7 @@ def run_test():
 
         
         result = subprocess.run(
-            [pytest_path, 'tests/test_route.py', '--maxfail=5', '--disable-warnings', '-q'],
+            [pytest_path, '/tests/test_route.py', '--maxfail=5', '--disable-warnings', '-q'],
             capture_output=True, text=True, timeout=15
         )
         return jsonify({
