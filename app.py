@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import sqlite3
 import os
+import subprocess
 import urllib.parse
 from werkzeug.utils import secure_filename
 
@@ -685,6 +686,26 @@ def recommended():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     return render_template('recommended.html')
+
+@app.route('/run-test')
+def run_test():
+    try:
+        pytest_path = os.path.join('env', 'Scripts', 'pytest.exe')
+        env = os.environ.copy()
+        env['PYTHONPATH'] = os.getcwd()
+
+        
+        result = subprocess.run(
+            [pytest_path, 'tests/test_route.py', '--maxfail=5', '--disable-warnings', '-q'],
+            capture_output=True, text=True, timeout=15
+        )
+        return jsonify({
+            "message": "Tests completed",
+            "output": result.stdout,
+            "errors": result.stderr
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

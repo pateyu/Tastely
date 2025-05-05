@@ -60,4 +60,15 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     fetchRecipes(); // Initial fetch of recipes when the page loads
+
+    // Test button logic
+    document.getElementById("test-button").addEventListener("click", function () {
+        fetch("/run-test")
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message + "\n" + (data.output || data.error));
+            })
+            .catch(err => alert("Test failed: " + err));
+    });
+    
 });
