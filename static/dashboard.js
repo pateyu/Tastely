@@ -51,6 +51,33 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         return stars;
     }
+    function runTests() {
+        fetch('/run-tests')
+            .then(response => response.json())
+            .then(data => {
+                let alertBox = document.createElement('div');
+                alertBox.style.position = 'fixed';
+                alertBox.style.bottom = '20px';
+                alertBox.style.right = '20px';
+                alertBox.style.padding = '15px 20px';
+                alertBox.style.backgroundColor = data.passed ? '#4caf50' : '#f44336';
+                alertBox.style.color = '#fff';
+                alertBox.style.borderRadius = '6px';
+                alertBox.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+                alertBox.style.zIndex = 9999;
+    
+                alertBox.innerText = data.passed
+                    ? `✅ All tests passed (exit code ${data.exit_code})`
+                    : `❌ Tests failed (exit code ${data.exit_code})`;
+    
+                document.body.appendChild(alertBox);
+                setTimeout(() => alertBox.remove(), 6000);
+            })
+            .catch(error => {
+                alert('Error running tests: ' + error);
+            });
+    }
+    
     
     // Listen for search form submission to re-fetch recipes based on search query
     searchForm.addEventListener('submit', function(event) {
@@ -63,12 +90,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Test button logic
     document.getElementById("test-button").addEventListener("click", function () {
-        fetch("/run-test")
-            .then(res => res.json())
-            .then(data => {
-                alert(data.message + "\n" + (data.output || data.error));
-            })
-            .catch(err => alert("Test failed: " + err));
+        runTests();
     });
     
 });

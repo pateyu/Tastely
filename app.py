@@ -4,7 +4,7 @@ import os
 import subprocess
 import urllib.parse
 from werkzeug.utils import secure_filename
-
+from tests.test_runner import run_all_tests
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  
 app.config['UPLOAD_FOLDER'] = 'static/images'
@@ -687,26 +687,15 @@ def recommended():
         return redirect(url_for('login'))
     return render_template('recommended.html')
 
-@app.route('/run-test')
-def run_test():
-    try:
-        pytest_path = os.path.join('env', 'Scripts', 'pytest.exe')
-        env = os.environ.copy()
-        env['PYTHONPATH'] = os.getcwd()
 
-        
-        result = subprocess.run(
-            [pytest_path, '/tests/test_route.py', '--maxfail=5', '--disable-warnings', '-q'],
-            capture_output=True, text=True, timeout=15
-        )
-        return jsonify({
-            "message": "Tests completed",
-            "output": result.stdout,
-            "errors": result.stderr
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+@app.route('/run-tests')
+def run_tests():
+    code = run_all_tests()
+    return jsonify({
+        "status": "done",
+        "passed": code == 0,
+        "exit_code": code
+    })
 
 if __name__ == '__main__':
     init_db()  

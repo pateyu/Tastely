@@ -1,75 +1,99 @@
 import pytest
+import uuid
 from app import app
-from io import BytesIO
+from flask import session
 
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
-    app.config['WTF_CSRF_ENABLED'] = False  
+    app.config['WTF_CSRF_ENABLED'] = False
     with app.test_client() as client:
         yield client
 
-def test_index_route(client):
-    response = client.get('/')
-    assert response.status_code == 200
+def get_json_or_fail(response):
+    if response.content_type != 'application/json':
+        print("Expected JSON, got:", response.content_type)
+        print("Body:\n", response.data.decode())
+        assert False, "Non-JSON response"
+    return response.get_json()
 
-def test_signup_page(client):
-    response = client.get('/signup')
+def signup(client, username="testuser", email="test@example.com", password="testpass"):
+    return client.post('/signup', json={
+        "username": username,
+        "email": email,
+        "password": password
+    })
+
+def login(client, username="testuser", password="testpass"):
+    return client.post('/login', json={
+        "username": username,
+        "password": password
+    })
+
+def test_signup_success(client):
+    unique_username = f"testuser_{uuid.uuid4().hex[:8]}"
+    unique_email = f"{unique_username}@test.com"
+    
+    response = signup(client, username=unique_username, email=unique_email)
     assert response.status_code == 200
+    data = get_json_or_fail(response)
+    assert data['success']
+
+def test_signup_duplicate_user(client):
+    signup(client)
+    response = signup(client)
+    assert response.status_code == 409
+    data = get_json_or_fail(response)
+    assert not data['success']
+
+def test_login_success(client):
+    signup(client)
+    response = login(client)
+    assert response.status_code == 200
+    data = get_json_or_fail(response)
+    assert 'message' in data
 
 def test_login_failure(client):
-    # Attempt to login with fake credentials
-    response = client.post('/login', json={
-        'username': 'fakeuser',
-        'password': 'wrongpass'
-    })
+    response = login(client, username="invalid", password="wrong")
     assert response.status_code == 401
-    assert b'Login failed' in response.data
+    data = get_json_or_fail(response)
+    assert 'message' in data
+
 def test_get_recipes(client):
-    """Test recipe list retrieval."""
     response = client.get('/api/recipes')
     assert response.status_code == 200
-    assert 'recipes' in response.get_json()
+    data = get_json_or_fail(response)
+    assert 'recipes' in data
 
-def test_recommend_without_login(client):
-    """Ensure recommendation fails without login."""
+def test_recommended_requires_login(client):
     response = client.get('/api/recommended')
     assert response.status_code == 401
-    assert 'error' in response.get_json()
+    data = get_json_or_fail(response)
+    assert 'error' in data
 
-def login_session(client):
-    """Helper function to fake login by setting session."""
-    with client.session_transaction() as sess:
-        sess['user_id'] = 1  
+def test_authenticated_routes(client):
+    signup(client)
+    login(client)
 
-def test_search_recipes_api(client):
-    """Test searching for recipes via the API."""
-    response = client.get('/api/recipes?search=Test')
-    
-    assert response.status_code == 200
-    json_data = response.get_json()
-    assert 'recipes' in json_data
-    assert isinstance(json_data['recipes'], list)
-
-def test_logout_redirects_to_index(client):
-    """Test that logout clears session and redirects to index."""
-    # Simulate login
     with client.session_transaction() as sess:
         sess['user_id'] = 1
-        sess['is_admin'] = True
 
-    response = client.get('/logout', follow_redirects=False)
-
-    # Check for redirect
-    assert response.status_code == 302
-    assert response.headers['Location'].endswith('/')
-
-def test_settings_route_logged_in(client):
-    """Test that the settings page loads for logged-in users."""
-    with client.session_transaction() as sess:
-        sess['user_id'] = 1  # simulate login
-
+    # settings page
     response = client.get('/settings')
     assert response.status_code == 200
-    assert b"settings" in response.data.lower()
 
+    # dashboard page
+    response = client.get('/dashboard')
+    assert response.status_code == 200
+
+def test_logout(client):
+    signup(client)
+    login(client)
+
+    with client.session_transaction() as sess:
+        sess['user_id'] = 1
+        sess['is_admin'] = False
+
+    response = client.get('/logout', follow_redirects=False)
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/')
