@@ -43,7 +43,7 @@ Replace `yourusername` with your GitHub username or the repo owner.
 ### 2. Create a Virtual Environment
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 ```
 
 Activate the environment:
@@ -65,9 +65,15 @@ pip install -r requirements.txt
 
 ### 4. Run the Application
 
-```bash
-python app.py
-```
+- **macOS/Linux**:
+  ```bash
+  python3 app.py
+  ```
+
+- **Windows**:
+  ```cmd
+  python app.py
+  ```
 
 The app should now be running at:
 
